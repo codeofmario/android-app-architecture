@@ -1,0 +1,10 @@
+<resources>
+    <string name="BlogApp">BlogApp</string>
+    <string name="auth_login">Login</string>
+    <string name="auth_label_username">Username</string>
+    <string name="auth_label_password">Password</string>
+    <string name="auth_msg_login_failed">Authentication failed</string>
+
+    <string name="label_create">Create</string>
+    <string name="label_update">Update</string>
+</resources>

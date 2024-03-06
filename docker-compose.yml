@@ -1,0 +1,92 @@
+version: '3.7'
+
+services:
+
+  backend:
+    image: codeofmario/nestjsblog:1.0
+    container_name: blogappbackend
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    ports:
+      - 8000:8000
+    networks:
+      - blogapp-network
+    environment:
+      AT_SECRET: at-secret
+      RT_SECRET: rt-secret
+
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: minio_access_key
+      MINIO_SECRET_KEY: minio_secret_key
+      MINIO_BUCKET: blogapp
+
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: blogapp
+      DB_USERNAME: blogapp
+      DB_PASSWORD: blogapp
+    restart: unless-stopped
+
+  postgres:
+    image: postgres
+    ports:
+      - 8100:5432
+    networks:
+      - blogapp-network
+    restart: always
+    environment:
+      POSTGRES_DB: blogapp
+      POSTGRES_USER: blogapp
+      POSTGRES_PASSWORD: blogapp
+
+  redis:
+    image: redis:alpine
+    ports:
+      - 8300:6379
+    networks:
+      - blogapp-network
+
+  redis-gui:
+    image: rediscommander/redis-commander
+    depends_on:
+      - redis
+    ports:
+      - 8310:8081
+    networks:
+      - blogapp-network
+    environment:
+      REDIS_HOSTS: redis
+
+  minio:
+    image: minio/minio
+    ports:
+      - 8400:9000
+      - 8401:9001
+    networks:
+      - blogapp-network
+    environment:
+      MINIO_ACCESS_KEY: minio_access_key
+      MINIO_SECRET_KEY: minio_secret_key
+    command: server --address 0.0.0.0:9000  --console-address :9001 /data
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 minio_access_key minio_secret_key;
+      /usr/bin/mc mb myminio/blogapp;
+      /usr/bin/mc anonymous set public myminio/blogapp;
+      exit 0;
+      "
+    networks:
+      - blogapp-network
+
+networks:
+  blogapp-network:
