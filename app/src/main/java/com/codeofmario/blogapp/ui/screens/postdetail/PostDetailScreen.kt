@@ -60,6 +60,7 @@ fun PostDetailScreen(
                 AsyncImage(
                     model = "http://10.0.2.2:8000${post?.imageUrl}",
                     placeholder = painterResource(R.drawable.placeholder),
+                    error = painterResource(R.drawable.placeholder),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
